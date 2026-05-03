@@ -438,22 +438,57 @@ def phase_collecting():
     answers  = st.session_state.answers
     step_idx = st.session_state.step_idx
     step     = ALL_STEPS[step_idx]
-    done     = sum(1 for s in ALL_STEPS if s["key"] in answers and is_step_visible(s, answers))
-    total    = count_visible_steps(answers)
+
+    done  = sum(
+        1 for s in ALL_STEPS
+        if s["key"] in answers and is_step_visible(s, answers)
+    )
+    total = count_visible_steps(answers)
+
     st.progress(done / max(total, 1))
     st.caption(f"Question {done + 1} of ~{total}")
+
     render_history()
-    st.markdown('<div class="cb-input">', unsafe_allow_html=True)
-    value = render_input(step)
-    if st.session_state.error_msg:
-        st.markdown(f'<p style="color:{ORANGE};font-size:0.85rem;font-weight:600">{html.escape(st.session_state.error_msg)}</p>', unsafe_allow_html=True)
-    col_s, col_k = st.columns([3, 1])
-    with col_s:
-        if st.button("Submit →", key="btn_submit", use_container_width=True): _on_submit(step, value, answers)
-    with col_k:
-        if not step.get("required"):
-            if st.button("Skip", key="btn_skip", use_container_width=True): _advance(step, None, "(skipped)", answers)
-    st.markdown("</div>", unsafe_allow_html=True)
+
+    with st.form(key=f"form_{step['key']}", clear_on_submit=False):
+
+        st.markdown(
+            '<div class="cb-input">',
+            unsafe_allow_html=True
+        )
+
+        value = render_input(step)
+
+        if st.session_state.error_msg:
+            st.markdown(
+                f'<p style="color:{ORANGE};font-size:0.85rem;font-weight:600">'
+                f'{html.escape(st.session_state.error_msg)}</p>',
+                unsafe_allow_html=True
+            )
+
+        col_s, col_k = st.columns([3, 1])
+
+        with col_s:
+            submitted = st.form_submit_button(
+                "Submit →",
+                use_container_width=True
+            )
+
+        with col_k:
+            skipped = False
+            if not step.get("required"):
+                skipped = st.form_submit_button(
+                    "Skip",
+                    use_container_width=True
+                )
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    if submitted:
+        _on_submit(step, value, answers)
+
+    if skipped:
+        _advance(step, None, "(skipped)", answers)
 
 def _on_submit(step, value, answers):
     err = validate(step, value)
