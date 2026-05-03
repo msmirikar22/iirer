@@ -357,7 +357,7 @@ html,body,.stApp{{background:{LIGHT_BG};font-family:'Segoe UI',Arial,sans-serif;
 .cb-header p{{margin:0;font-size:0.75rem;opacity:0.7;}}
 .proj-badge{{margin-left:auto;padding:0.25rem 0.85rem;border-radius:20px;font-size:0.75rem;font-weight:700;}}
 .proj-swtcie{{background:#3b7dd8;color:#fff;}}.proj-pathways{{background:#1B7A4A;color:#fff;}}.proj-cip{{background:#7C3AED;color:#fff;}}.proj-none{{background:#555;color:#fff;}}
-.cb-chat{{background:#fff;border:1px solid #dce3ef;border-top:none;padding:1.25rem 1.25rem 0.75rem;min-height:340px;max-height:460px;overflow-y:auto;scroll-behavior:smooth;}}
+.cb-chat{{background:#fff;border:1px solid #dce3ef;border-top:none;padding:1.25rem 1.25rem 0.75rem;min-height:340px;height:auto !important;max-height:none !important;overflow:visible !important;}}
 .cb-row-bot{{display:flex;justify-content:flex-start;margin-bottom:0.65rem;align-items:flex-end;gap:0.45rem;}}
 .cb-row-user{{display:flex;justify-content:flex-end;margin-bottom:0.65rem;}}
 .cb-av{{width:32px;height:32px;background:{DARK_BLUE};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;flex-shrink:0;}}
@@ -368,22 +368,48 @@ html,body,.stApp{{background:{LIGHT_BG};font-family:'Segoe UI',Arial,sans-serif;
 .stButton>button{{background:{ORANGE};color:white;border:none;border-radius:8px;padding:0.5rem 1.5rem;font-weight:700;font-size:0.9rem;}}
 .stButton>button:hover{{background:#c93d1f;}}
 .sec-pill{{display:inline-block;background:{DARK_BLUE}1a;color:{DARK_BLUE};font-size:0.68rem;font-weight:700;padding:0.15rem 0.55rem;border-radius:20px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.35rem;}}
-div[data-testid="stRadio"]>div{{flex-direction:row !important;gap:0.75rem;}}
-div[data-testid="stRadio"] label{{background:#fff;padding:0.4rem 1rem;border-radius:20px;border:1px solid #dce3ef;cursor:pointer;color:{DARK_BLUE} !important;font-weight:600;display:flex;align-items:center;gap:0.4rem;}}
-div[data-testid="stRadio"] label:hover{{border-color:{ORANGE};}}
-div[data-testid="stRadio"] input[type="radio"]:checked+div{{background:{ORANGE} !important;color:white !important;border:none;}}
-div[data-testid="stRadio"] input[type="radio"]{{accent-color:{ORANGE};}}
+div[data-testid="stRadio"] > div{{flex-direction:row !important;gap:0.75rem;}}
+
+div[data-testid="stRadio"] label{{
+    background:white !important;
+    color:{DARK_BLUE} !important;
+    border:1px solid #dce3ef !important;
+    border-radius:20px !important;
+    padding:8px 18px !important;
+    font-weight:600 !important;
+}}
+
+div[data-testid="stRadio"] label p{{
+    color:{DARK_BLUE} !important;
+    margin:0 !important;
+}}
+
+div[data-testid="stRadio"] label:has(input:checked){{
+    background:{ORANGE} !important;
+    border-color:{ORANGE} !important;
+}}
+
+div[data-testid="stRadio"] label:has(input:checked) p{{
+    color:white !important;
+}}
 .stTextInput input,.stNumberInput input{{border-radius:8px;border-color:#c0cde0;}}
 .stSelectbox>div>div,.stMultiSelect>div>div{{border-radius:8px !important;}}
 </style>""", unsafe_allow_html=True)
 
-# ── Chat renderer ──────────────────────────────────────────────────────────────
+
 def render_history():
-    parts = ['<div class="cb-chat" id="cbscroll">']
+    parts = ['<div class="cb-chat">']
     for role, msg in st.session_state.history:
-        if role == "bot": parts.append(f'<div class="cb-row-bot"><div class="cb-av">AI</div><div class="cb-bot">{msg}</div></div>')
-        else: parts.append(f'<div class="cb-row-user"><div class="cb-user">{msg}</div></div>')
-    parts.append("</div><script>(function(){var e=document.getElementById('cbscroll');if(e)e.scrollTop=e.scrollHeight;})();</script>")
+        if role == "bot":
+            parts.append(
+                f'<div class="cb-row-bot"><div class="cb-av">AI</div><div class="cb-bot">{msg}</div></div>'
+            )
+        else:
+            parts.append(
+                f'<div class="cb-row-user"><div class="cb-user">{msg}</div></div>'
+            )
+
+    parts.append("</div>")
     st.markdown("".join(parts), unsafe_allow_html=True)
 
 # ── Input widget ───────────────────────────────────────────────────────────────
